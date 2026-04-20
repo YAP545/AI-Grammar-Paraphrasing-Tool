@@ -1,20 +1,16 @@
 import streamlit as st
-from openai import OpenAI
-import os
+from groq import Groq
 
-# Secure API key loading
-api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+# Load API key from Streamlit secrets
+api_key = st.secrets.get("GROQ_API_KEY")
 
 if not api_key:
-    st.error("API key not found. Please add it in Streamlit Secrets.")
+    st.error("API key not found")
     st.stop()
 
-client = OpenAI(api_key=api_key)
-
-st.set_page_config(page_title="AI Grammar Tool", layout="centered")
+client = Groq(api_key=api_key)
 
 st.title("✍️ AI Grammar & Paraphrasing Tool")
-st.write("Improve your sentences instantly using AI")
 
 user_input = st.text_area("Enter your sentence:")
 
@@ -23,7 +19,7 @@ length = st.selectbox("Select Output Length", ["Short", "Detailed"])
 
 def generate_output(text, tone, length):
     prompt = f"""
-    Correct the grammar and rewrite the sentence.
+    Correct grammar and rewrite the sentence.
 
     Tone: {tone}
     Length: {length}
@@ -33,12 +29,11 @@ def generate_output(text, tone, length):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="llama3-8b-8192",
         messages=[
             {"role": "system", "content": "You are an expert English editor."},
             {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
+        ]
     )
 
     return response.choices[0].message.content
@@ -51,5 +46,4 @@ if st.button("✨ Improve Sentence"):
         with st.spinner("Processing..."):
             result = generate_output(user_input, tone, length)
             st.success("Done!")
-            st.write("### ✨ Improved Sentence:")
             st.write(result)
