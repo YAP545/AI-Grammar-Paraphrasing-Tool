@@ -1,21 +1,23 @@
 import streamlit as st
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
 
-# Load API key
-load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Secure API key loading
+api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+
+if not api_key:
+    st.error("API key not found. Please add it in Streamlit Secrets.")
+    st.stop()
+
+client = OpenAI(api_key=api_key)
 
 st.set_page_config(page_title="AI Grammar Tool", layout="centered")
 
 st.title("✍️ AI Grammar & Paraphrasing Tool")
 st.write("Improve your sentences instantly using AI")
 
-# User input
 user_input = st.text_area("Enter your sentence:")
 
-# Options
 tone = st.selectbox("Select Tone", ["Formal", "Informal"])
 length = st.selectbox("Select Output Length", ["Short", "Detailed"])
 
@@ -43,7 +45,7 @@ def generate_output(text, tone, length):
 
 
 if st.button("✨ Improve Sentence"):
-    if user_input.strip() == "":
+    if not user_input.strip():
         st.warning("Please enter some text")
     else:
         with st.spinner("Processing..."):
