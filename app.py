@@ -4,12 +4,11 @@ from groq import Groq
 # Load API key from Streamlit Secrets
 api_key = st.secrets.get("GROQ_API_KEY")
 
-# Stop if API key missing
 if not api_key:
     st.error("❌ API key not found. Add GROQ_API_KEY in Streamlit Secrets.")
     st.stop()
 
-# Initialize Groq client
+# Initialize client
 client = Groq(api_key=api_key)
 
 # Page config
@@ -25,6 +24,7 @@ user_input = st.text_area("Enter your sentence:")
 # Options
 tone = st.selectbox("Select Tone", ["Formal", "Informal"])
 length = st.selectbox("Select Output Length", ["Short", "Detailed"])
+
 
 # Function
 def generate_output(text, tone, length):
@@ -43,7 +43,7 @@ Sentence:
 
     try:
         response = client.chat.completions.create(
-            model="llama3-70b-8192",  # ✅ Updated working model
+            model="mixtral-8x7b-32768",   # ✅ FIXED MODEL
             messages=[
                 {"role": "system", "content": "You are an expert English editor."},
                 {"role": "user", "content": prompt}
@@ -57,9 +57,10 @@ Sentence:
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
+
 # Button
 if st.button("✨ Improve Sentence"):
-    if not user_input or user_input.strip() == "":
+    if not user_input.strip():
         st.warning("Please enter some text")
     else:
         with st.spinner("Processing..."):
