@@ -8,7 +8,6 @@ if not api_key:
     st.error("❌ API key not found. Add GROQ_API_KEY in Streamlit Secrets.")
     st.stop()
 
-# Initialize client
 client = Groq(api_key=api_key)
 
 # Page config
@@ -25,8 +24,6 @@ user_input = st.text_area("Enter your sentence:")
 tone = st.selectbox("Select Tone", ["Formal", "Informal"])
 length = st.selectbox("Select Output Length", ["Short", "Detailed"])
 
-
-# Function
 def generate_output(text, tone, length):
     if not text or text.strip() == "":
         return "⚠️ Please enter a valid sentence."
@@ -43,7 +40,7 @@ Sentence:
 
     try:
         response = client.chat.completions.create(
-            model="mixtral-8x7b-32768",   # ✅ FIXED MODEL
+            model="llama-3.1-8b-instant",  # current working model
             messages=[
                 {"role": "system", "content": "You are an expert English editor."},
                 {"role": "user", "content": prompt}
@@ -51,12 +48,10 @@ Sentence:
             temperature=0.7,
             max_tokens=200
         )
-
         return response.choices[0].message.content
 
     except Exception as e:
         return f"❌ Error: {str(e)}"
-
 
 # Button
 if st.button("✨ Improve Sentence"):
